@@ -1,3 +1,19 @@
 spring:
   application:
     name: fleet-api
+  datasource:
+    url: ${FLEET_DB_URL:jdbc:postgresql://localhost:5432/fleet_tracking}
+    username: ${FLEET_DB_USERNAME:fleet}
+    password: ${FLEET_DB_PASSWORD:fleet}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
