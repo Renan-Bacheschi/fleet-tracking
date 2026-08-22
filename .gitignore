@@ -1,0 +1,23 @@
+git restore --staged .# IntelliJ IDEA
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+**/target/
+
+# Vue / Nuxt
+**/node_modules/
+**/.nuxt/
+**/.output/
+**/dist/
+
+# Logs
+*.log
