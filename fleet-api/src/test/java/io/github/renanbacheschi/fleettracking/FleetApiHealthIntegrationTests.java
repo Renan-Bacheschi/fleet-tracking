@@ -16,7 +16,7 @@ class FleetApiHealthIntegrationTests {
     private RestTestClient restTestClient;
 
     @Test
-    void healthEndpointIsUp() {
+    void deveRetornarUpNoEndpointDeSaude() {
         restTestClient.get()
                 .uri("/actuator/health")
                 .exchange()
