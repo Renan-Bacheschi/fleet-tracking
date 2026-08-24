@@ -34,7 +34,7 @@ class VehicleIntegrationTests {
     void cleanDatabase() {
         vehicleRepository.deleteAll();
     }
-
+// TODO  criar novos testes
     @Test
     void validPostReturnsCreatedVehicle() {
         restTestClient.post()
