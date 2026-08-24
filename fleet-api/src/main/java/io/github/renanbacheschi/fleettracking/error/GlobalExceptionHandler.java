@@ -18,17 +18,17 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(VehicleNotFoundException.class)
-    ProblemDetail handleVehicleNotFound(VehicleNotFoundException exception) {
-        return problem(HttpStatus.NOT_FOUND, "Vehicle not found", exception.getMessage());
+    ProblemDetail tratarVeiculoNaoEncontrado(VehicleNotFoundException exception) {
+        return criarProblema(HttpStatus.NOT_FOUND, "Vehicle not found", exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateVehicleException.class)
-    ProblemDetail handleDuplicateVehicle(DuplicateVehicleException exception) {
-        return problem(HttpStatus.CONFLICT, "Duplicate vehicle", exception.getMessage());
+    ProblemDetail tratarVeiculoDuplicado(DuplicateVehicleException exception) {
+        return criarProblema(HttpStatus.CONFLICT, "Duplicate vehicle", exception.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ProblemDetail handleValidation(MethodArgumentNotValidException exception) {
+    ProblemDetail tratarValidacao(MethodArgumentNotValidException exception) {
         Map<String, List<String>> errors = new LinkedHashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(error ->
                 errors.computeIfAbsent(error.getField(), ignored -> new java.util.ArrayList<>())

@@ -31,16 +31,16 @@ class VehicleIntegrationTests {
     private JdbcTemplate jdbcTemplate;
 
     @AfterEach
-    void cleanDatabase() {
+    void limparBancoDeDados() {
         vehicleRepository.deleteAll();
     }
 // TODO  criar novos testes
     @Test
-    void validPostReturnsCreatedVehicle() {
+    void deveRetornarVeiculoCriadoAoRealizarPostValido() {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(validRequest("abc-1d23", "FLEET-001"))
+                .body(criarRequisicaoValida("abc-1d23", "FLEET-001"))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().valueMatches("Location", "/api/v1/vehicles/[0-9a-f-]+")
@@ -52,11 +52,11 @@ class VehicleIntegrationTests {
     }
 
     @Test
-    void createdVehicleCanBeRetrieved() {
+    void devePermitirConsultarVeiculoCadastrado() {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(validRequest("ABC1234", "FLEET-002"))
+                .body(criarRequisicaoValida("ABC1234", "FLEET-002"))
                 .exchange()
                 .expectStatus().isCreated();
 
@@ -73,7 +73,7 @@ class VehicleIntegrationTests {
     }
 
     @Test
-    void invalidDataReturnsBadRequest() {
+    void deveRetornarBadRequestAoReceberDadosInvalidos() {
         String request = """
                 {
                   "licensePlate": "invalid",
@@ -99,18 +99,18 @@ class VehicleIntegrationTests {
     }
 
     @Test
-    void duplicateNormalizedLicensePlateReturnsConflict() {
+    void deveRetornarConflitoParaPlacaNormalizadaDuplicada() {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(validRequest("ABC-1234", "FLEET-003"))
+                .body(criarRequisicaoValida("ABC-1234", "FLEET-003"))
                 .exchange()
                 .expectStatus().isCreated();
 
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(validRequest("abc1234", "FLEET-004"))
+                .body(criarRequisicaoValida("abc1234", "FLEET-004"))
                 .exchange()
                 .expectStatus().isEqualTo(409)
                 .expectBody()
@@ -119,7 +119,7 @@ class VehicleIntegrationTests {
     }
 
     @Test
-    void missingVehicleReturnsNotFound() {
+    void deveRetornarNotFoundQuandoOVeiculoNaoExistir() {
         UUID id = UUID.randomUUID();
 
         restTestClient.get()
@@ -132,7 +132,7 @@ class VehicleIntegrationTests {
     }
 
     @Test
-    void flywayAppliedVehicleMigrationToPostgreSql() throws Exception {
+    void deveAplicarMigrationDeVeiculoNoPostgreSql() throws Exception {
         Integer successfulMigrations = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM flyway_schema_history WHERE version = '1' AND success",
                 Integer.class
@@ -146,7 +146,7 @@ class VehicleIntegrationTests {
         assertThat(databaseProduct).isEqualTo("PostgreSQL");
     }
 
-    private String validRequest(String licensePlate, String fleetCode) {
+    private String criarRequisicaoValida(String licensePlate, String fleetCode) {
         return """
                 {
                   "licensePlate": "%s",

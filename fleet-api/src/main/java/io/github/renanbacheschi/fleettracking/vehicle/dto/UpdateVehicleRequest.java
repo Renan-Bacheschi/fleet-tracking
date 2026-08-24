@@ -39,7 +39,7 @@ public record UpdateVehicleRequest(
 ) {
 
     @AssertTrue(message = "modelYear must not be later than next year")
-    public boolean isModelYearWithinAllowedRange() {
+    public boolean possuiAnoModeloDentroDoLimitePermitido() {
         return modelYear == null || modelYear <= Year.now().getValue() + 1;
     }
 }
