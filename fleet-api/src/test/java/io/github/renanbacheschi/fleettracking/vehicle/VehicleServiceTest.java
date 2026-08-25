@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VehicleServiceTest {
-
+// TODO alterar e padronizar nomes dos testes com test...
     @Mock
     private VehicleRepository vehicleRepository;
 
@@ -119,7 +119,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void changesVehicleStatus() {
+    void deveAlterarOStatusDoVeiculo() {
         UUID id = UUID.randomUUID();
         Vehicle vehicle = createVehicle("ABC1234", "FLEET-001");
         when(vehicleRepository.findById(id)).thenReturn(Optional.of(vehicle));
