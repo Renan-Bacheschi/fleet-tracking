@@ -53,7 +53,7 @@ public class Vehicle {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    static Vehicle cadastrar(
+    static Vehicle create(
             String licensePlate,
             String fleetCode,
             String brand,
@@ -76,7 +76,7 @@ public class Vehicle {
         return vehicle;
     }
 
-    void atualizar(
+    void update(
             String licensePlate,
             String fleetCode,
             String brand,
@@ -93,13 +93,13 @@ public class Vehicle {
         this.updatedAt = Instant.now();
     }
 
-    void alterarStatus(VehicleStatus status) {
+    void changeStatus(VehicleStatus status) {
         this.status = status;
         this.updatedAt = Instant.now();
     }
 
     @PrePersist
-    void prepararPersistencia() {
+    void preparePersistence() {
         if (id == null) {
             id = UUID.randomUUID();
         }
@@ -112,7 +112,7 @@ public class Vehicle {
     }
 
     @PreUpdate
-    void prepararAtualizacao() {
+    void prepareUpdate() {
         updatedAt = Instant.now();
     }
 }

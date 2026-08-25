@@ -31,16 +31,16 @@ class VehicleIntegrationTests {
     private JdbcTemplate jdbcTemplate;
 
     @AfterEach
-    void limparBancoDeDados() {
+    void cleanDatabase() {
         vehicleRepository.deleteAll();
     }
-// TODO  criar novos testes
+    // TODO: criar mais testes
     @Test
     void deveRetornarVeiculoCriadoAoRealizarPostValido() {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(criarRequisicaoValida("abc-1d23", "FLEET-001"))
+                .body(createValidRequest("abc-1d23", "FLEET-001"))
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().valueMatches("Location", "/api/v1/vehicles/[0-9a-f-]+")
@@ -56,7 +56,7 @@ class VehicleIntegrationTests {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(criarRequisicaoValida("ABC1234", "FLEET-002"))
+                .body(createValidRequest("ABC1234", "FLEET-002"))
                 .exchange()
                 .expectStatus().isCreated();
 
@@ -103,14 +103,14 @@ class VehicleIntegrationTests {
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(criarRequisicaoValida("ABC-1234", "FLEET-003"))
+                .body(createValidRequest("ABC-1234", "FLEET-003"))
                 .exchange()
                 .expectStatus().isCreated();
 
         restTestClient.post()
                 .uri("/api/v1/vehicles")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(criarRequisicaoValida("abc1234", "FLEET-004"))
+                .body(createValidRequest("abc1234", "FLEET-004"))
                 .exchange()
                 .expectStatus().isEqualTo(409)
                 .expectBody()
@@ -146,7 +146,7 @@ class VehicleIntegrationTests {
         assertThat(databaseProduct).isEqualTo("PostgreSQL");
     }
 
-    private String criarRequisicaoValida(String licensePlate, String fleetCode) {
+    private String createValidRequest(String licensePlate, String fleetCode) {
         return """
                 {
                   "licensePlate": "%s",

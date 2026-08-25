@@ -37,7 +37,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void createsVehicleWithNormalizedPlateAndActiveStatus() {
+    void deveCadastrarVeiculoComPlacaNormalizadaEStatusAtivo() {
         when(vehicleRepository.saveAndFlush(any(Vehicle.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -56,7 +56,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void rejectsDuplicateLicensePlate() {
+    void deveRejeitarPlacaDuplicada() {
         when(vehicleRepository.existsByLicensePlate("ABC1234")).thenReturn(true);
 
         assertThatThrownBy(() -> vehicleService.create(createRequest("abc-1234", "FLEET-001")))
@@ -68,7 +68,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void rejectsDuplicateFleetCode() {
+    void deveRejeitarCodigoDeFrotaDuplicado() {
         when(vehicleRepository.existsByFleetCode("FLEET-001")).thenReturn(true);
 
         assertThatThrownBy(() -> vehicleService.create(createRequest("ABC1234", "FLEET-001")))
@@ -80,7 +80,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void rejectsLookupOfMissingVehicle() {
+    void deveLancarExcecaoAoBuscarVeiculoInexistente() {
         UUID id = UUID.randomUUID();
         when(vehicleRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -90,9 +90,9 @@ class VehicleServiceTest {
     }
 
     @Test
-    void updatesVehicleData() {
+    void deveAtualizarOsDadosDoVeiculo() {
         UUID id = UUID.randomUUID();
-        Vehicle vehicle = vehicle("ABC1234", "FLEET-001");
+        Vehicle vehicle = createVehicle("ABC1234", "FLEET-001");
         when(vehicleRepository.findById(id)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.saveAndFlush(vehicle)).thenReturn(vehicle);
         UpdateVehicleRequest request = new UpdateVehicleRequest(
@@ -121,7 +121,7 @@ class VehicleServiceTest {
     @Test
     void changesVehicleStatus() {
         UUID id = UUID.randomUUID();
-        Vehicle vehicle = vehicle("ABC1234", "FLEET-001");
+        Vehicle vehicle = createVehicle("ABC1234", "FLEET-001");
         when(vehicleRepository.findById(id)).thenReturn(Optional.of(vehicle));
         when(vehicleRepository.saveAndFlush(vehicle)).thenReturn(vehicle);
 
@@ -145,7 +145,7 @@ class VehicleServiceTest {
         );
     }
 
-    private Vehicle vehicle(String licensePlate, String fleetCode) {
+    private Vehicle createVehicle(String licensePlate, String fleetCode) {
         return Vehicle.create(
                 licensePlate,
                 fleetCode,

@@ -30,8 +30,8 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponse> cadastrar(@Valid @RequestBody CreateVehicleRequest request) {
-        VehicleResponse response = vehicleService.cadastrar(request);
+    public ResponseEntity<VehicleResponse> create(@Valid @RequestBody CreateVehicleRequest request) {
+        VehicleResponse response = vehicleService.create(request);
         URI location = URI.create("/api/v1/vehicles/" + response.id());
         return ResponseEntity.created(location).body(response);
     }
@@ -52,10 +52,10 @@ public class VehicleController {
     }
 
     @PatchMapping("/{id}/status")
-    public VehicleResponse atualizarStatus(
+    public VehicleResponse updateStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateVehicleStatusRequest request
     ) {
-        return vehicleService.atualizarStatus(id, request);
+        return vehicleService.updateStatus(id, request);
     }
 }
