@@ -19,6 +19,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,11 +30,14 @@ class VehicleServiceTest {
     @Mock
     private VehicleRepository vehicleRepository;
 
+    @Mock
+    private TutorialService tutorialService;
+
     private VehicleService vehicleService;
 
     @BeforeEach
     void setUp() {
-        vehicleService = new VehicleService(vehicleRepository);
+        vehicleService = new VehicleService(vehicleRepository, tutorialService);
     }
 
     @Test
@@ -132,6 +136,24 @@ class VehicleServiceTest {
 
         assertThat(response.status()).isEqualTo(VehicleStatus.MAINTENANCE);
         verify(vehicleRepository).saveAndFlush(vehicle);
+        verify(tutorialService, never()).requestTutorial(anyString());
+    }
+
+    @Test
+    void deveEnviarTutorialAoIniciarManutencaoDoZulaine75() {
+        UUID id = UUID.randomUUID();
+        Vehicle vehicle = createVehicle("ZUL0075", "FLEET-075", "Zulaine", "75");
+        when(vehicleRepository.findById(id)).thenReturn(Optional.of(vehicle));
+        when(vehicleRepository.saveAndFlush(vehicle)).thenReturn(vehicle);
+
+        VehicleResponse response = vehicleService.updateStatus(
+                id,
+                new UpdateVehicleStatusRequest(VehicleStatus.MAINTENANCE)
+        );
+
+        assertThat(response.status()).isEqualTo(VehicleStatus.MAINTENANCE);
+        verify(vehicleRepository).saveAndFlush(vehicle);
+        verify(tutorialService).requestTutorial("How to remove the pin from the Zulaine 75 coquilho");
     }
 
     private CreateVehicleRequest createRequest(String licensePlate, String fleetCode) {
@@ -146,11 +168,15 @@ class VehicleServiceTest {
     }
 
     private Vehicle createVehicle(String licensePlate, String fleetCode) {
+        return createVehicle(licensePlate, fleetCode, "Volkswagen", "Delivery");
+    }
+
+    private Vehicle createVehicle(String licensePlate, String fleetCode, String brand, String model) {
         return Vehicle.create(
                 licensePlate,
                 fleetCode,
-                "Volkswagen",
-                "Delivery",
+                brand,
+                model,
                 2024,
                 VehicleType.TRUCK
         );
