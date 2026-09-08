@@ -20,11 +20,9 @@ import java.util.UUID;
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-    private final TutorialService tutorialService;
 
-    public VehicleService(VehicleRepository vehicleRepository, TutorialService tutorialService) {
+    public VehicleService(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
-        this.tutorialService = tutorialService;
     }
 
     @Transactional
@@ -81,13 +79,7 @@ public class VehicleService {
     public VehicleResponse updateStatus(UUID id, UpdateVehicleStatusRequest request) {
         Vehicle vehicle = findVehicle(id);
         vehicle.changeStatus(request.status());
-        VehicleResponse response = toResponse(vehicleRepository.saveAndFlush(vehicle));
-
-        if (request.status() == VehicleStatus.MAINTENANCE) {
-            sendMaintenanceTutorialIfApplicable(vehicle);
-        }
-
-        return response;
+        return toResponse(vehicleRepository.saveAndFlush(vehicle));
     }
 
     private Vehicle findVehicle(UUID id) {
@@ -125,13 +117,6 @@ public class VehicleService {
         int maximumYear = Year.now().getValue() + 1;
         if (modelYear == null || modelYear < 1900 || modelYear > maximumYear) {
             throw new IllegalArgumentException("modelYear must be between 1900 and " + maximumYear);
-        }
-    }
-
-    private void sendMaintenanceTutorialIfApplicable(Vehicle vehicle) {
-        if ("Zulaine".equalsIgnoreCase(vehicle.getBrand())
-                && "75".equals(vehicle.getModel())) {
-            tutorialService.requestTutorial("How to remove the pin from the Zulaine 75 coquilho");
         }
     }
 
