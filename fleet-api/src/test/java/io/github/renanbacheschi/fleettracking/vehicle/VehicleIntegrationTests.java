@@ -73,6 +73,33 @@ class VehicleIntegrationTests {
     }
 
     @Test
+    void deveListarVeiculosDoMaisRecenteParaOMaisAntigo() {
+        restTestClient.post()
+                .uri("/api/v1/vehicles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(createValidRequest("ABC1234", "FLEET-005"))
+                .exchange()
+                .expectStatus().isCreated();
+
+        restTestClient.post()
+                .uri("/api/v1/vehicles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(createValidRequest("DEF5678", "FLEET-006"))
+                .exchange()
+                .expectStatus().isCreated();
+
+        restTestClient.get()
+                .uri("/api/v1/vehicles")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$").isArray()
+                .jsonPath("$.length()").isEqualTo(2)
+                .jsonPath("$[0].fleetCode").isEqualTo("FLEET-006")
+                .jsonPath("$[1].fleetCode").isEqualTo("FLEET-005");
+    }
+
+    @Test
     void deveRetornarBadRequestAoReceberDadosInvalidos() {
         String request = """
                 {
