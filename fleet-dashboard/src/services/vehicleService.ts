@@ -7,4 +7,8 @@ export const vehicleService = {
   getAll(): Promise<Vehicle[]> {
     return apiRequest<Vehicle[]>(VEHICLES_PATH)
   },
+
+  getById(id: string): Promise<Vehicle> {
+    return apiRequest<Vehicle>(`${VEHICLES_PATH}/${id}`)
+  },
 }
