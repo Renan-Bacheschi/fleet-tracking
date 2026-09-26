@@ -4,6 +4,10 @@ import type { Vehicle } from '@/types/vehicle'
 defineProps<{
   vehicles: Vehicle[]
 }>()
+
+const emit = defineEmits<{
+  select: [id: string]
+}>()
 </script>
 
 <template>
@@ -20,12 +24,24 @@ defineProps<{
           </tr>
         </thead>
         <tbody>
-          <tr v-for="vehicle in vehicles" :key="vehicle.id">
+          <tr
+            v-for="vehicle in vehicles"
+            :key="vehicle.id"
+            class="vehicle-row"
+            tabindex="0"
+            @click="emit('select', vehicle.id)"
+            @keydown.enter="emit('select', vehicle.id)"
+            @keydown.space.prevent="emit('select', vehicle.id)"
+          >
             <td>{{ vehicle.licensePlate }}</td>
             <td>{{ vehicle.fleetCode }}</td>
             <td>{{ vehicle.brand }} {{ vehicle.model }}</td>
             <td>{{ vehicle.type }}</td>
-            <td>{{ vehicle.status }}</td>
+            <td>
+              <span class="status" :class="`status--${vehicle.status.toLowerCase()}`">
+                {{ vehicle.status }}
+              </span>
+            </td>
           </tr>
           <tr v-if="vehicles.length === 0">
             <td class="empty-cell" colspan="5">
@@ -89,6 +105,47 @@ td {
 
 tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.vehicle-row {
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.vehicle-row:hover,
+.vehicle-row:focus {
+  background: rgba(55, 202, 146, 0.055);
+  outline: 0;
+}
+
+.vehicle-row:focus-visible {
+  outline: 2px solid rgba(55, 202, 146, 0.7);
+  outline-offset: -2px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.48rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 680;
+  letter-spacing: 0.04em;
+}
+
+.status--active {
+  background: rgba(55, 202, 146, 0.11);
+  color: var(--color-accent);
+}
+
+.status--maintenance {
+  background: rgba(216, 166, 87, 0.12);
+  color: var(--color-warning);
+}
+
+.status--inactive {
+  background: rgba(118, 131, 149, 0.14);
+  color: #9ba7b5;
 }
 
 .empty-cell {

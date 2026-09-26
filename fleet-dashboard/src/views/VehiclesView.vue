@@ -1,14 +1,59 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import AppIcon from '@/components/AppIcon.vue'
 import AppSidebar from '@/components/AppSidebar.vue'
 import DashboardHeader from '@/components/DashboardHeader.vue'
 import MetricCard from '@/components/MetricCard.vue'
 import VehicleTable from '@/components/VehicleTable.vue'
+import { vehicleService } from '@/services/vehicleService'
 import type { Vehicle } from '@/types/vehicle'
 
 const vehicles = ref<Vehicle[]>([])
+const searchTerm = ref('')
+const isLoading = ref(true)
+const errorMessage = ref('')
+const router = useRouter()
+
+const filteredVehicles = computed(() => {
+  const term = searchTerm.value.trim().toLocaleLowerCase('pt-BR')
+
+  if (!term) {
+    return vehicles.value
+  }
+
+  return vehicles.value.filter((vehicle) =>
+    [vehicle.licensePlate, vehicle.fleetCode, vehicle.brand, vehicle.model].some((value) =>
+      value.toLocaleLowerCase('pt-BR').includes(term),
+    ),
+  )
+})
+
+const activeVehicles = computed(() => vehicles.value.filter(({ status }) => status === 'ACTIVE').length)
+const maintenanceVehicles = computed(
+  () => vehicles.value.filter(({ status }) => status === 'MAINTENANCE').length,
+)
+const inactiveVehicles = computed(() => vehicles.value.filter(({ status }) => status === 'INACTIVE').length)
+
+async function loadVehicles() {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    vehicles.value = await vehicleService.getAll()
+  } catch {
+    errorMessage.value = 'Não foi possível carregar os veículos. Verifique sua conexão e tente novamente.'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function openVehicle(id: string) {
+  router.push({ name: 'vehicle-detail', params: { id } })
+}
+
+onMounted(loadVehicles)
 </script>
 
 <template>
@@ -28,9 +73,21 @@ const vehicles = ref<Vehicle[]>([])
         </div>
 
         <section class="metrics-grid" aria-label="Indicadores da frota">
-          <MetricCard label="Veículos ativos" value="—" tone="active" />
-          <MetricCard label="Em manutenção" value="—" tone="maintenance" />
-          <MetricCard label="Inativos" value="—" tone="inactive" />
+          <MetricCard
+            label="Veículos ativos"
+            :value="isLoading || errorMessage ? '—' : String(activeVehicles)"
+            tone="active"
+          />
+          <MetricCard
+            label="Em manutenção"
+            :value="isLoading || errorMessage ? '—' : String(maintenanceVehicles)"
+            tone="maintenance"
+          />
+          <MetricCard
+            label="Inativos"
+            :value="isLoading || errorMessage ? '—' : String(inactiveVehicles)"
+            tone="inactive"
+          />
         </section>
 
         <section class="vehicles-section" aria-labelledby="vehicles-heading">
@@ -42,11 +99,23 @@ const vehicles = ref<Vehicle[]>([])
             <label class="search-field">
               <span class="sr-only">Buscar veículo</span>
               <AppIcon name="search" />
-              <input type="search" placeholder="Buscar veículo" disabled />
+              <input
+                v-model="searchTerm"
+                type="search"
+                placeholder="Buscar veículo"
+                aria-label="Buscar por placa, código da frota, marca ou modelo"
+              />
             </label>
           </div>
 
-          <VehicleTable :vehicles="vehicles" />
+          <div v-if="isLoading" class="feedback-state" role="status">
+            Carregando veículos…
+          </div>
+          <div v-else-if="errorMessage" class="feedback-state feedback-state--error" role="alert">
+            <p>{{ errorMessage }}</p>
+            <button type="button" @click="loadVehicles">Tentar novamente</button>
+          </div>
+          <VehicleTable v-else :vehicles="filteredVehicles" @select="openVehicle" />
         </section>
       </main>
     </div>
@@ -131,7 +200,39 @@ const vehicles = ref<Vehicle[]>([])
   border-radius: 0.45rem;
   background: var(--color-surface);
   color: var(--color-text-muted);
-  opacity: 0.7;
+}
+
+.feedback-state {
+  display: grid;
+  min-height: 13rem;
+  place-items: center;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.feedback-state--error {
+  gap: 0.9rem;
+}
+
+.feedback-state p {
+  margin: 0;
+}
+
+.feedback-state button,
+.back-button {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(55, 202, 146, 0.4);
+  border-radius: 0.45rem;
+  background: rgba(55, 202, 146, 0.1);
+  color: #d9fff0;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 650;
 }
 
 .search-field input {

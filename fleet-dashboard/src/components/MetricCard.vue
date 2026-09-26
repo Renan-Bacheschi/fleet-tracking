@@ -3,6 +3,7 @@ defineProps<{
   label: string
   value: string
   tone: 'active' | 'maintenance' | 'inactive'
+  caption?: string
 }>()
 </script>
 
@@ -13,7 +14,7 @@ defineProps<{
       <span>{{ label }}</span>
     </div>
     <strong>{{ value }}</strong>
-    <span class="metric-card__caption">Aguardando dados da frota</span>
+    <span class="metric-card__caption">{{ caption ?? 'Veículos neste status' }}</span>
   </article>
 </template>
 
