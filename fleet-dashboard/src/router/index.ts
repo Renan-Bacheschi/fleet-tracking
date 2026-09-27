@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginView from '@/views/LoginView.vue'
+import VehiclesDetailView from '@/views/VehiclesDetailView.vue'
 import VehiclesView from '@/views/VehiclesView.vue'
 
 const router = createRouter({
@@ -17,6 +18,12 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
       meta: { title: 'Acesso' },
+    },
+    {
+      path: '/vehicles/:id',
+      name: 'vehicle-detail',
+      component: VehiclesDetailView,
+      meta: { title: 'Detalhes do veículo' },
     },
     {
       path: '/:pathMatch(.*)*',

@@ -4,7 +4,7 @@ import BrandLogo from './BrandLogo.vue'
 
 const navigation = [
   { label: 'Visão geral', icon: 'overview' as const },
-  { label: 'Veículos', icon: 'vehicle' as const, active: true },
+  { label: 'Veículos', icon: 'vehicle' as const, to: '/' },
   { label: 'Telemetria', icon: 'telemetry' as const, comingSoon: true },
   { label: 'Geofences', icon: 'geofence' as const, comingSoon: true },
 ]
@@ -18,19 +18,23 @@ const navigation = [
 
     <nav class="sidebar__nav" aria-label="Navegação principal">
       <p class="sidebar__label">Operação</p>
-      <button
-        v-for="item in navigation"
-        :key="item.label"
-        class="nav-item"
-        :class="{ 'nav-item--active': item.active }"
-        type="button"
-        :aria-current="item.active ? 'page' : undefined"
-        :disabled="item.comingSoon"
-      >
-        <AppIcon :name="item.icon" />
-        <span>{{ item.label }}</span>
-        <span v-if="item.comingSoon" class="nav-item__badge">Em breve</span>
-      </button>
+      <template v-for="item in navigation" :key="item.label">
+        <RouterLink
+          v-if="item.to"
+          class="nav-item"
+          :to="item.to"
+          active-class="nav-item--active"
+          exact-active-class="nav-item--active"
+        >
+          <AppIcon :name="item.icon" />
+          <span>{{ item.label }}</span>
+        </RouterLink>
+        <button v-else class="nav-item" type="button" disabled>
+          <AppIcon :name="item.icon" />
+          <span>{{ item.label }}</span>
+          <span class="nav-item__badge">Em breve</span>
+        </button>
+      </template>
     </nav>
 
     <div class="sidebar__footer">
